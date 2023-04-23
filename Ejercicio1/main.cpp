@@ -1,23 +1,26 @@
 //Librerias
 #include <iostream>
 #include <vector>
-//--------------------------
+//-------------VARIABLES GLOBALES-------------------
 using namespace std;
 using matriz = vector<vector<int> >;
 int vacia = 0; //defino el 0 para cuando todavia la matriz esta vacia
+//La variable del cuadrado
 matriz cuadrado;
-vector<pair<int, bool>> NumerosXcolocar;//(numero,puesto o no) false no lo use true si
+// Vector de tuplas donde tengo los numeros posibles a colocar y si fueron usados o no
+vector<pair<int, bool>> NumerosXcolocar;//(numero,T/F) false= no lo use Y true= si
 int numeroMagico;
 int n, k;
-//Filas
+//Suma Filas
 vector<int> filas;
-//Columnas
+//Suma Columnas
 vector<int> columnas;
-//Diagonales
+//Suma Diagonales
 vector<int> diagonales = vector<int>(2);
 
 
 //***************************
+//Funcion que imprime la matriz en pantalla
 void imprimirMatriz() {
     //Imprimo la matriz por filas
     for (int i = 0; i < n; ++i) {
@@ -30,15 +33,17 @@ void imprimirMatriz() {
 
 //***********************************************
 bool esMagica() {
-    // ReinciarVariables();
     diagonales[0] = 0;
     diagonales[1] = 0;
+    //Calculo las diagonales
     for (int i = 0; i < n; ++i) {
-        //Hago la suma de filas columnas y diagonales
+        //Hago la suma de diagonales
         diagonales[0] += cuadrado[i][i];
         diagonales[1] += cuadrado[i][n - 1 - i];
+        //si ya supero el numero magico retorno
         if (diagonales[0] > numeroMagico || diagonales[0] > numeroMagico)return false;
     }
+    //Me fijo si toco suma el numero magico
     if (n == 4) {
         //Caso que es magico n=4
         if (filas[0] == numeroMagico && filas[1] == numeroMagico && filas[2] == numeroMagico &&
@@ -62,48 +67,41 @@ bool esMagica() {
         }
 
     }
+
 }
 
 
 //***********************************************
 bool SigueMagico(int i, int j) {
-    //ReinciarVariables();
-    //Las filas superan al numeroMagico
+    //La fila en la que estoy  supera al numeroMagico
     if (filas[i] > numeroMagico)return false;
-    //Las columnas superan al numero magico
+    //La columna en la que estoy supera al numero magico
     if (columnas[j] > numeroMagico)return false;
-    //Las diagonales superan 15
-    //if (diagonales[0] > numeroMagico || diagonales[1] > numeroMagico)return false;
-    //Complete la primera fila pero no suma el numero magico
+    //Complete la  fila pero no suma el numero magico
     if (filas[i] != numeroMagico && cuadrado[i][n - 1] != vacia)return false;
-    //Complete la primera columna pero no suma el numero magico
+    //Complete la  columna pero no suma el numero magico
     if (columnas[j] != numeroMagico && cuadrado[n - 1][j] != vacia)return false;
-    //Completo la diagonal 2 columna y no suma el numero magico
-    //if (diagonales[1] != numeroMagico && cuadrado[n -1][0] != vacia)return false;
     return true;
 }
-//***********************************************
 
 //***********************************************
 void AuxCuadrado(int i, int j, int numero) {
-
     for (int l = 0; l < NumerosXcolocar.size(); ++l) {
-        //Pongo el nunero en la posicion
-        if (!NumerosXcolocar[l].second) {
-            cuadrado[i][j] = NumerosXcolocar[l].first;
-            filas[i] += NumerosXcolocar[l].first;
-            columnas[j] += NumerosXcolocar[l].first;
-            NumerosXcolocar[l].second = true;
-            if (i == n - 1 && j == n - 1) {
-                if (esMagica()) {
+        if (!NumerosXcolocar[l].second) { //Chequeo que el numero no se haya usado
+            cuadrado[i][j] = NumerosXcolocar[l].first; // lo pongo en el cuadrado
+            filas[i] += NumerosXcolocar[l].first; //Aumento la suma de la fila
+            columnas[j] += NumerosXcolocar[l].first;//Aumento la suma de la columna
+            NumerosXcolocar[l].second = true;//Marco que use el numero
+            if (i == n - 1 && j == n - 1) { //Si estoy en la ultima Posicon de la matriz
+                if (esMagica()) {//Chequeo que se magica
                     k--;
-                    if (k == 0) {
+                    if (k == 0) { // Veo que haya llegado a la kesima matriz
                         imprimirMatriz();
                         return;
                     }
                 }
             } else {
-                if (SigueMagico(i, j)) {//Sigo avanzando en la matriz
+                if (SigueMagico(i, j)) {//Me fijo si sigue siendo magica y sigo avanzando en la matriz
                     if (j == n - 1) {
                         //Avanzo de fila
                         AuxCuadrado(i + 1, 0, l + 1);
@@ -113,10 +111,10 @@ void AuxCuadrado(int i, int j, int numero) {
                     }
                 }
             }
-            NumerosXcolocar[cuadrado[i][j] - 1].second = false;
-            filas[i] -= NumerosXcolocar[cuadrado[i][j] - 1].first;
-            columnas[j] -= NumerosXcolocar[cuadrado[i][j] - 1].first;
-            cuadrado[i][j] = vacia;
+            NumerosXcolocar[cuadrado[i][j] - 1].second = false; //Marco como que ya no se usa el numero
+            filas[i] -= NumerosXcolocar[cuadrado[i][j] - 1].first;//Resto el numero a  la suma de las filas
+            columnas[j] -= NumerosXcolocar[cuadrado[i][j] - 1].first;//Resto el numero a  la suma de las columnas
+            cuadrado[i][j] = vacia;//Vacio la posicion
         }
 
 
@@ -126,6 +124,7 @@ void AuxCuadrado(int i, int j, int numero) {
 
 //--------------------------
 void ejercicio1() {
+    //Llamo a la funcion que va hacer la recursion
     AuxCuadrado(0, 0, 0);
 
 
@@ -134,23 +133,23 @@ void ejercicio1() {
 //--------------------------
 int main() {
     cin >> n >> k;
-    cuadrado = matriz(n, vector<int>(n));
-    filas = vector<int>(n);
-    columnas = vector<int>(n);
+    cuadrado = matriz(n, vector<int>(n)); //Inicializo el tamaño de la matriz
+    filas = vector<int>(n);//Inicializo el vector de la suma de las filas
+    columnas = vector<int>(n);//Inicializo el vector de la suma de las columbas
     if ((n == 3 && k > 8) || (n == 4 && k > 7040)) {//evito hacer los cuadrados si mi k supera la cantidad posible
         cout << "-1 " << endl;
         return 0;
     } else {
-        for (int j = 0; j < n * n; j++) {
+        for (int j = 0; j < n * n; j++) { //Asigno al vector de los numeros a colocar , los numeros y que no los use
             pair<int, bool> valor = make_pair(j + 1, false);
             NumerosXcolocar.push_back(valor);
         }
-        //asigno numero magico
+        //calculo el  numero magico
         numeroMagico = (n * ((n * n) + 1)) / 2;
         ejercicio1();
 
     }
-    if ((k != 0)) {//evito hacer los cuadrados si mi k supera la cantidad posible
+    if ((k != 0)) {//Si termino y no encontre matriz imprimo -1
         cout << "-1 " << endl;
     }
     return 0;
